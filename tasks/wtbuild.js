@@ -64,10 +64,10 @@ function compileSrcDemo(srcFile, destFile, options) {
 		rawContent = fs.readFileSync(srcFile).toString(),
 		rawArr = [],
 		styleSheets = [],
-		url = options.domain + '/' + options.group + '/' + options.project + '/' + options.version + '/';
+		url = options.domain + '/' + options.group + '/' + options.project + '/' + options.version + '/',
+		resultContent = '';
 
 	rawContent = rawContent.replace(/<!--#include\s+virtual="(.*)"\s*-->/g, function(match, content) {
-		console.log(match);
 		return fs.readFileSync(srcPath + '/' + content).toString();
 	});
 
@@ -75,17 +75,21 @@ function compileSrcDemo(srcFile, destFile, options) {
 
 	rawArr[1] = rawArr[1].replace(/\s*<link.+href="(.*)".*\/>/g, function(match, content) {
 		content = path.relative(srcPath, content);
-		console.log('+++++++++++' + content);
 		styleSheets.push(content);
 		return '';
 	});
 
-	var tmpLinkSrc = '\n\r<link rel="stylesheet" src="' + url + '??';
+	var tmpLinkSrc = '<link rel="stylesheet" src="' + url + '??';
 	tmpLinkSrc += styleSheets.join(',');
-	tmpLinkSrc += '" />\n\r';
+	tmpLinkSrc += '" />';
 	rawArr[0] += tmpLinkSrc;
 
-	return rawArr.join('</head>');
+	resultContent = rawArr.join('</head>');
+	if (resultContent && destFile) {
+		kmcUtils.writeFileSync(destFile, resultContent);
+	}
+
+	return resultContent;
 }
 
 module.exports = function(grunt) {

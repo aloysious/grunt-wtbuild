@@ -40,8 +40,8 @@ module.exports = function(grunt) {
 				version: '<%= pkg.version%>'
 			},
 			files: [{
-				src: 'test/assets/*.{shtml,html}',
-				dest: 'tmp/assets/'
+				src: 'test/assets/page/*.{shtml,html}',
+				dest: 'tmp/assets/page'
 			}]
 		},
 		dep: {

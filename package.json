@@ -1,6 +1,9 @@
 {
   "name": "grunt-wtbuild",
   "description": "A building plgin for tb-wt",
+  "domain": "http://g.tbcdn.cn",
+  "group": "wt",
+  "project": "index",
   "version": "0.1.1",
   "homepage": "https://github.com/aloysious/grunt-wtbuild",
   "author": {
