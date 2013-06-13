@@ -51,13 +51,13 @@ function getModsDependencise(mods, depFile, depFileCharset) {
 }
 
 /**
- * @brief compileSrcDemo 
+ * @brief 格式化demo页面，抽离样式成combo，并进行模块填充 
  *
- * @param srcFile
- * @param destFile
- * @param options
+ * @param srcFile {String} 源文件
+ * @param destFile {String} 目标文件
+ * @param options {Object} 格式化的配置参数
  *
- * @return 
+ * @return resultContent
  */
 function compileSrcDemo(srcFile, destFile, options) {
 	var srcPath = path.dirname(srcFile),
@@ -65,6 +65,7 @@ function compileSrcDemo(srcFile, destFile, options) {
 		rawArr = [],
 		styleSheets = [],
 		url = options.domain + '/' + options.group + '/' + options.project + '/' + options.version + '/',
+		base = options.base ? options.base : './src',
 		resultContent = '';
 
 	rawContent = rawContent.replace(/<!--#include\s+virtual="(.*)"\s*-->/g, function(match, content) {
@@ -74,17 +75,24 @@ function compileSrcDemo(srcFile, destFile, options) {
 	rawArr = rawContent.split('</head>');
 
 	rawArr[1] = rawArr[1].replace(/\s*<link.+href="(.*)".*\/>/g, function(match, content) {
-		content = path.relative(srcPath, content);
+		content = path.relative(base, path.resolve(srcPath, content));
 		styleSheets.push(content);
 		return '';
 	});
 
-	var tmpLinkSrc = '<link rel="stylesheet" src="' + url + '??';
-	tmpLinkSrc += styleSheets.join(',');
-	tmpLinkSrc += '" />';
-	rawArr[0] += tmpLinkSrc;
+	rawArr[0] = rawArr[0].replace(/\s*<script.+src=".*[(config)|(mods)].js".*><\/script>/g, '');
 
-	resultContent = rawArr.join('</head>');
+	if (styleSheets.length > 0) {
+		var tmpLinkSrc = os.EOL + '<link rel="stylesheet" href="' + url + '??';
+		tmpLinkSrc += styleSheets.join(',');
+		tmpLinkSrc += '" />';
+		rawArr[0] += tmpLinkSrc;
+	}
+
+	rawArr[0] += os.EOL + '<script type="javascript" src="' + url + '??config.js,mods.js"></script>';
+	
+	resultContent = rawArr.join(os.EOL + '</head>');
+	
 	if (resultContent && destFile) {
 		kmcUtils.writeFileSync(destFile, resultContent);
 	}

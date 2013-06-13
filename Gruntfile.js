@@ -40,22 +40,22 @@ module.exports = function(grunt) {
 				version: '<%= pkg.version%>'
 			},
 			files: [{
-				src: 'test/assets/page/*.{shtml,html}',
-				dest: 'tmp/assets/page'
+				src: 'src/page/*.{shtml,html}',
+				dest: 'build/page'
 			}]
 		},
 		dep: {
 			options: {
 				packages: [{
-					name: 'assets',
-					path: 'test/'
+					name: 'widget',
+					path: 'src/'
 				}],
 				depExt: '.dep',
 				depOnly: true,
 				depFilePath: 'mods.js'
 			},
 			files: [{
-				src: 'test/assets/*.js'
+				src: 'src/*.js'
 			}]
 		}
 	},
