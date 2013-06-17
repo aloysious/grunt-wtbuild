@@ -64,34 +64,34 @@ function compileSrcDemo(srcFile, destFile, options) {
 		rawContent = fs.readFileSync(srcFile).toString(),
 		rawArr = [],
 		styleSheets = [],
-		domain = options.domain + '/',
-		assetPath = options.group + '/' + options.project + '/' + options.version + '/',
+		url = options.domain + '/' + options.group + '/' + options.project + '/' + options.version + '/',
 		base = options.base ? options.base : './src',
 		resultContent = '';
 
-	rawContent = rawContent.replace(/<!--#include\s+virtual="(.*)"\s*-->/g, function(match, content) {
+	rawContent = rawContent.replace(/<!--#include\s+virtual="(.*)"\s*-->/ig, function(match, content) {
 		return fs.readFileSync(srcPath + '/' + content).toString();
 	});
 
 	rawArr = rawContent.split('</head>');
 
-	rawArr[1] = rawArr[1].replace(/\s*<link.+href="(.*)".*\/>/g, function(match, content) {
+	rawArr[1] = rawArr[1].replace(/\s*<link.+href="(.*)".*\/>/ig, function(match, content) {
 		content = path.relative(base, path.resolve(srcPath, content));
-		styleSheets.push(assetPath + content.replace(/(.*)\.css/, '$1-min.css'));
+		//styleSheets.push(content.replace(/(.*)\.css/, '$1-min.css'));
+		styleSheets.push(content);
 		return '';
 	});
 
-	rawArr[0] = rawArr[0].replace(/\s*<script.+src=".*config\.js".*><\/script>/g, '');
-	rawArr[0] = rawArr[0].replace(/\s*<script.+src=".*mods\.js".*><\/script>/g, '');
+	rawArr[0] = rawArr[0].replace(/\s*<script.+src=".*(config|mods)\.js".*><\/script>/ig, '');
 
 	if (styleSheets.length > 0) {
-		var tmpLinkSrc = os.EOL + '<link rel="stylesheet" href="' + domain + '??';
+		var tmpLinkSrc = os.EOL + '<link rel="stylesheet" href="' + url + '??';
 		tmpLinkSrc += styleSheets.join(',');
 		tmpLinkSrc += '" />';
 		rawArr[0] += tmpLinkSrc;
 	}
 
-	rawArr[0] += os.EOL + '<script type="javascript" src="' + domain + '??' + assetPath + 'config-min.js,' + assetPath + 'mods-min.js"></script>';
+	//rawArr[0] += os.EOL + '<script type="javascript" src="' + url + '??config-min.js,mods-min.js"></script>';
+	rawArr[0] += os.EOL + '<script type="text/javascript" src="' + url + '??config.js,mods.js"></script>';
 	
 	resultContent = rawArr.join(os.EOL + '</head>');
 	
