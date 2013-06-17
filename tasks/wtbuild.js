@@ -64,7 +64,8 @@ function compileSrcDemo(srcFile, destFile, options) {
 		rawContent = fs.readFileSync(srcFile).toString(),
 		rawArr = [],
 		styleSheets = [],
-		url = options.domain + '/' + options.group + '/' + options.project + '/' + options.version + '/',
+		domain = options.domain + '/',
+		assetPath = options.group + '/' + options.project + '/' + options.version + '/',
 		base = options.base ? options.base : './src',
 		resultContent = '';
 
@@ -76,20 +77,21 @@ function compileSrcDemo(srcFile, destFile, options) {
 
 	rawArr[1] = rawArr[1].replace(/\s*<link.+href="(.*)".*\/>/g, function(match, content) {
 		content = path.relative(base, path.resolve(srcPath, content));
-		styleSheets.push(content);
+		styleSheets.push(assetPath + content.replace(/(.*)\.css/, '$1-min.css'));
 		return '';
 	});
 
-	rawArr[0] = rawArr[0].replace(/\s*<script.+src=".*[(config)|(mods)].js".*><\/script>/g, '');
+	rawArr[0] = rawArr[0].replace(/\s*<script.+src=".*config\.js".*><\/script>/g, '');
+	rawArr[0] = rawArr[0].replace(/\s*<script.+src=".*mods\.js".*><\/script>/g, '');
 
 	if (styleSheets.length > 0) {
-		var tmpLinkSrc = os.EOL + '<link rel="stylesheet" href="' + url + '??';
+		var tmpLinkSrc = os.EOL + '<link rel="stylesheet" href="' + domain + '??';
 		tmpLinkSrc += styleSheets.join(',');
 		tmpLinkSrc += '" />';
 		rawArr[0] += tmpLinkSrc;
 	}
 
-	rawArr[0] += os.EOL + '<script type="javascript" src="' + url + '??config.js,mods.js"></script>';
+	rawArr[0] += os.EOL + '<script type="javascript" src="' + domain + '??' + assetPath + 'config-min.js,' + assetPath + 'mods-min.js"></script>';
 	
 	resultContent = rawArr.join(os.EOL + '</head>');
 	
@@ -170,7 +172,7 @@ module.exports = function(grunt) {
 
 				// compileOnly为true时不进行依赖抽取，只进行demo页面的编译构建
 				content = compileSrcDemo(inputSrc, outputFile, options);
-				grunt.log.writeln(content);
+				//grunt.log.writeln(content);
 				grunt.log.writeln('File "' + outputFile + '" created.');
 			});
 		
